@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -15,6 +16,9 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 30;
     public float impulsoAbajoForce = 60;
 
+    public bool desbloqueadoImpulsoAbajo = false;
+    public bool desbloqueadoSaltar = false;
+
     int rebotes = 0;
 
     bool canUseDash = false;
@@ -22,9 +26,6 @@ public class PlayerController : MonoBehaviour
     bool puedeSaltar = false;
     bool puedeImpulsoAbajo = false;
     bool impulsoAbajo = false;
-
-    bool desbloqueadoImpulsoAbajo = true;
-    bool desbloqueadoSaltar = true;
 
     void Start()
     {
@@ -65,6 +66,8 @@ public class PlayerController : MonoBehaviour
             {
                 rb.AddForce(Vector3.down * impulsoAbajoForce, ForceMode.Impulse);
                 impulsoAbajo = true;
+                puedeSaltar = false;
+                puedeImpulsoAbajo = false;
                 rebotes = 0;
             }
         }
@@ -84,7 +87,7 @@ public class PlayerController : MonoBehaviour
                 if (impulsoAbajo)
                 {
                     rebotes++;
-                    // Debug.Log(collision.relativeVelocity.magnitude / rebotes > 1);
+                    // Debug.Log(collision.relativeVelocity.magnitude / rebotes);
                     if (collision.relativeVelocity.magnitude / rebotes > 2.0f)
                     {
                         Vector3 normalRebote = collision.GetContact(0).normal;
@@ -95,6 +98,7 @@ public class PlayerController : MonoBehaviour
                     {
                         impulsoAbajo = false;
                         puedeImpulsoAbajo = true;
+                        puedeSaltar = true;
                     }
                     break;
                     /*rebotes++;
@@ -110,6 +114,15 @@ public class PlayerController : MonoBehaviour
                     puedeSaltar = true;
                 }
                 break;
+        }
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Floor") && !impulsoAbajo)
+        {
+            puedeSaltar = false;
+            puedeImpulsoAbajo = true;
         }
     }
 
@@ -141,18 +154,18 @@ public class PlayerController : MonoBehaviour
             case "Collectable":
                 switch (other.gameObject.GetComponent<Collectable>().tipo){
                     case 0:
-                        Debug.Log("Moneda");
+                        // Debug.Log("Moneda");
                         break;
                     case 1:
-                        Debug.Log("Desbloquea Salto");
+                        // Debug.Log("Desbloquea Salto");
                         desbloqueadoSaltar = true;
                         break;
                     case 2:
-                        Debug.Log("Desbloquea Impulso Abajo");
+                        // Debug.Log("Desbloquea Impulso Abajo");
                         desbloqueadoImpulsoAbajo = true;
                         break;
                     case 3:
-                        Debug.Log("Desbloquea Dash");
+                        // Debug.Log("Desbloquea Dash");
                         canUseDash = true;
                         break;
                 }
@@ -163,9 +176,7 @@ public class PlayerController : MonoBehaviour
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                 break;
         }
-
     }
-
 
     private void FixedUpdate()
     {

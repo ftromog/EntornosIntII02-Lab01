@@ -6729,6 +6729,14 @@ PrefabInstance:
       propertyPath: impulsoAbajoForce
       value: 64
       objectReference: {fileID: 0}
+    - target: {fileID: 5944789711622725006, guid: a680c9dfdf0267846b19635f6691788a, type: 3}
+      propertyPath: desbloqueadoSaltar
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5944789711622725006, guid: a680c9dfdf0267846b19635f6691788a, type: 3}
+      propertyPath: desbloqueadoImpulsoAbajo
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
