@@ -136,7 +136,6 @@ public class PlayerController : MonoBehaviour
             {
                 puedeImpulsoAbajo = true;
             }
-            
         }
     }
 
