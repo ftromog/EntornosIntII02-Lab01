@@ -1,19 +1,30 @@
+using System.Collections;
 using UnityEngine;
 
 public class Collectable : MonoBehaviour
 {
     public float rotationSpeed = 0;
+    public float verticalSpeed = 0;
+    public int tipo;
 
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
-        
+        if (verticalSpeed > 0)
+        {
+            StartCoroutine(cambiar_vertical());
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
         gameObject.transform.Rotate(new Vector3(0f, 0f, rotationSpeed));
+        gameObject.transform.position += new Vector3(0, verticalSpeed * Time.deltaTime, 0);
+    }
+
+    IEnumerator cambiar_vertical()
+    {
+        yield return new WaitForSeconds(0.5f);
+        verticalSpeed = -verticalSpeed;
+        StartCoroutine(cambiar_vertical());
     }
 }

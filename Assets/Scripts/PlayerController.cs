@@ -23,11 +23,12 @@ public class PlayerController : MonoBehaviour
     bool puedeImpulsoAbajo = false;
     bool impulsoAbajo = false;
 
+    bool desbloqueadoImpulsoAbajo = true;
+    bool desbloqueadoSaltar = true;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        canUseDash = true;
         currentlyUsingDash = false;
     }
 
@@ -35,7 +36,6 @@ public class PlayerController : MonoBehaviour
     {
         movementDirection = movementValue.Get<Vector2>();
         movementDirection = new Vector3(movementValue.Get<Vector2>().x, 0f, movementValue.Get<Vector2>().y);
-
     }
 
     private void Update()
@@ -50,13 +50,16 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(Dash(1f));
         }
 
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        if (Keyboard.current.spaceKey.wasPressedThisFrame && desbloqueadoSaltar)
         {
             if (puedeSaltar)
             {
                 rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
                 puedeSaltar = false;
-                puedeImpulsoAbajo = true;
+                if (desbloqueadoImpulsoAbajo)
+                {
+                    puedeImpulsoAbajo = true;
+                }
             }
             else if (puedeImpulsoAbajo)
             {
@@ -81,17 +84,30 @@ public class PlayerController : MonoBehaviour
                 if (impulsoAbajo)
                 {
                     rebotes++;
+                    // Debug.Log(collision.relativeVelocity.magnitude / rebotes > 1);
+                    if (collision.relativeVelocity.magnitude / rebotes > 2.0f)
+                    {
+                        Vector3 normalRebote = collision.GetContact(0).normal;
+                        Vector3 flattenedNormalRebote = Vector3.ProjectOnPlane(normalRebote, Vector3.left);
+                        rb.AddForce(flattenedNormalRebote * collision.relativeVelocity.magnitude/rebotes, ForceMode.VelocityChange);
+                    }
+                    else
+                    {
+                        impulsoAbajo = false;
+                        puedeImpulsoAbajo = true;
+                    }
+                    break;
+                    /*rebotes++;
                     rb.AddForce(Vector3.up * jumpForce/rebotes, ForceMode.Impulse);
                     if (rebotes >= 5)
                     {
                         impulsoAbajo = false;
                         puedeImpulsoAbajo = true;
-                    }
+                    }*/
                 }
                 else
                 {
                     puedeSaltar = true;
-                    
                 }
                 break;
         }
@@ -99,7 +115,6 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Dash(float duration)
     {
-        // Debug.Log("Comienza DASH");
         canUseDash = false;
         currentlyUsingDash = true;
 
@@ -110,7 +125,6 @@ public class PlayerController : MonoBehaviour
         
         yield return new WaitForSeconds(duration);
 
-        // Debug.Log("Termina DASH");
         currentlyUsingDash = false;
 
         yield return new WaitForSeconds(1f);
@@ -121,20 +135,27 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        /*if(other.gameObject.CompareTag("Collectable"))
-        {
-            Debug.Log("Collectable obtained!");
-        }
-        else if(other.gameObject.CompareTag("Finish"))
-        {
-            Application.Quit();
-        }
-        */
 
         switch(other.gameObject.tag)
         {
             case "Collectable":
-                Debug.Log("Collectable obtained!");
+                switch (other.gameObject.GetComponent<Collectable>().tipo){
+                    case 0:
+                        Debug.Log("Moneda");
+                        break;
+                    case 1:
+                        Debug.Log("Desbloquea Salto");
+                        desbloqueadoSaltar = true;
+                        break;
+                    case 2:
+                        Debug.Log("Desbloquea Impulso Abajo");
+                        desbloqueadoImpulsoAbajo = true;
+                        break;
+                    case 3:
+                        Debug.Log("Desbloquea Dash");
+                        canUseDash = true;
+                        break;
+                }
                 Destroy(other.gameObject);
                 break;
 
