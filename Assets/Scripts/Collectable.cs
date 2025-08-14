@@ -3,12 +3,14 @@ using UnityEngine;
 
 public class Collectable : MonoBehaviour
 {
+    // Variables
     public float rotationSpeed = 0;
     public float verticalSpeed = 0;
     public int tipo;
 
     private void Start()
     {
+        // Para que se vea bonito y diferenciar los power ups de las monedas, estos además de rotar van a "flotar".
         if (verticalSpeed > 0)
         {
             StartCoroutine(cambiar_vertical());
